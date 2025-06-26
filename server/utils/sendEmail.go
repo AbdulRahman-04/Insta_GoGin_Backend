@@ -33,7 +33,7 @@ func SendEmail(data EmailData) error {
 	t := gomail.NewDialer("smtp.gmail.com", 465, user, pass)
 
 	// send mail 
-	if err := t.DialAndSend(s); err !+ nil {
+	if err := t.DialAndSend(s); err != nil {
 		fmt.Println(err)
 	}
 
