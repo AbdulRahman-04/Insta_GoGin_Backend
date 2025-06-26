@@ -1,9 +1,15 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/AbdulRahman-04/Go_Backend_Practice/utils"
+	"github.com/gin-gonic/gin"
+)
 
 
 func main() {
+	// DBCONNECT 
+	utils.DbConnect()
+	
 	router := gin.Default()
 
 	router.GET("/", func (c *gin.Context){
