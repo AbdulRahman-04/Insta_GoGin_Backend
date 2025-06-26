@@ -1,20 +1,21 @@
 package config
 
+
 type Config struct {
 	AppName string
 	Port int
 	DBURI string
 	JWTKEY string
 	URL string
-	OAuth OAuthConfig
-	Email EmailConfig
+	OAuth OauthConfig
+	Email EmailConfig 
 	Phone PhoneConfig
 }
 
-type OAuthConfig struct {
+type OauthConfig struct {
 	GoogleClientID string
-	GoogleSecretClientID string
-	GithubClientID string
+	GooleSecretClientID string
+	GithubClientId string
 	GithubSecretClientID string
 }
 
@@ -22,7 +23,6 @@ type EmailConfig struct {
 	User string
 	Pass string
 }
-
 type PhoneConfig struct {
 	Sid string
 	Token string
@@ -30,15 +30,16 @@ type PhoneConfig struct {
 }
 
 var AppConfig = &Config{
-	AppName: "MYPracticeGo",
-	Port: 7075,
-	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/MYPracticeGo",
+	AppName: "MyGoPractice",
+	Port: 7025,
+	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/MyGoPractice",
 	JWTKEY: "RAHMAN123",
-	OAuth: OAuthConfig{
+	URL: "http://localhost:7025",
+	OAuth: OauthConfig{
 		GoogleClientID: "",
-		GoogleSecretClientID: "",
-		GithubClientID: "",
-		GithubSecretClientID : "",
+		GooleSecretClientID: "",
+		GithubClientId: "",
+		GithubSecretClientID: "",
 	},
 	Email: EmailConfig{
 		User: "abdulrahman.81869@gmail.com",
