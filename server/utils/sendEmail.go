@@ -23,8 +23,8 @@ func SendEmail(data EmailData) error {
 	// create the sender newmessage
 	s := gomail.NewMessage()
 
-	s.SetAddressHeader("From", user, "Team Go Practice")
-    s.SetHeader("To", data.To)
+	s.SetAddressHeader("From", user, "Team Go Pract")
+	s.SetHeader("To", data.To)
 	s.SetHeader("Subject", data.Subject)
 	s.SetBody("Text/plain", data.Text)
 	s.AddAlternative("Html/plain", data.Html)
