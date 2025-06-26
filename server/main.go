@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/AbdulRahman-04/Go_Backend_Practice/config"
 	"github.com/AbdulRahman-04/Go_Backend_Practice/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +12,7 @@ import (
 func main() {
 	// DBCONNECT 
 	utils.DbConnect()
-	
+
 	router := gin.Default()
 
 	router.GET("/", func (c *gin.Context){
@@ -18,5 +21,5 @@ func main() {
 		})
 	})
 
-	router.Run(":2000")
+	router.Run(fmt.Sprintf(":%d", config.AppConfig.Port))
 }
