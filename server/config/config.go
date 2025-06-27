@@ -30,7 +30,7 @@ type OAuthConfig struct {
 	GithubSecretClientID string
 }
 
-var AppCinfig = &Config{
+var AppConfig = &Config{
 	AppName: "Go_Backend_Practice",
 	Port: 4050,
 	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/Go_Backend_App",
