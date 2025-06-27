@@ -1,25 +1,18 @@
 package main
 
-import (
-	"fmt"
+import "github.com/gin-gonic/gin"
 
-	"github.com/AbdulRahman-04/Go_Backend_Practice/config"
-	"github.com/AbdulRahman-04/Go_Backend_Practice/utils"
-	"github.com/gin-gonic/gin"
-)
-
-
-func main() {
-	// DBCONNECT 
-	utils.DbConnect()
-
+func main(){
+ 
 	router := gin.Default()
 
 	router.GET("/", func (c *gin.Context){
 		c.JSON(200, gin.H{
-			"msg" : "Hello From Gin",
+			"msg" : "Hello from gin",
 		})
 	})
 
-	router.Run(fmt.Sprintf(":%d", config.AppConfig.Port))
+	router.Run(":4040")
+	 
+
 }
