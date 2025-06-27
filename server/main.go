@@ -1,8 +1,16 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+
+	"github.com/AbdulRahman-04/Go_Backend_Practice/config"
+	"github.com/AbdulRahman-04/Go_Backend_Practice/utils"
+	"github.com/gin-gonic/gin"
+)
 
 func main(){
+	// DB IMPORT
+	utils.DbConnect()
  
 	router := gin.Default()
 
@@ -12,7 +20,7 @@ func main(){
 		})
 	})
 
-	router.Run(":4040")
+	router.Run(fmt.Sprintf(":%d", config.AppConfig.Port))
 	 
 
 }
