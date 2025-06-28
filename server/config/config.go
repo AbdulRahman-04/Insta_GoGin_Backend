@@ -1,18 +1,17 @@
 package config
 
 type Config struct {
-	AppName string
-	Port int 
+	Appname string
+	Port int
 	DBURI string
 	JWTKEY string
 	URL string
-	EMAIL EmailConfig
+	Email EmailConfig
 	Phone PhoneConfig
 	OAuth OAuthConfig
 }
 
 type EmailConfig struct {
-
 	User string
 	Pass string
 }
@@ -31,12 +30,12 @@ type OAuthConfig struct {
 }
 
 var AppConfig = &Config{
-	AppName: "Go_Backend_Practice",
-	Port: 4050,
-	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/Go_Backend_App",
-	JWTKEY: "RAHMAN123",
-	URL: "http://localhost:4050",
-	EMAIL: EmailConfig{
+	Appname: "Go_Backend_Practice",
+	Port: 3050,
+	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/Go_Backend_Practice",
+    JWTKEY: "RAHMAN123",
+	URL: "http://localhost:3050",
+	Email: EmailConfig{
 		User: "",
 		Pass: "",
 	},
