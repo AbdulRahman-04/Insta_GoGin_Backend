@@ -21,7 +21,7 @@ import (
 var userCollection *mongo.Collection
 
 func Collection(){
-	userCollection = utils.MongoClient.Database("Go_PRACTICE_BACKEND").Collection("users")
+	userCollection = utils.MongoClient.Database("Go_PRACTICE_BACKEND").Collection("user")
 }
 
 var JWTKEY = []byte(config.AppConfig.JWTKEY)
@@ -114,11 +114,14 @@ func UserSignup(c *gin.Context){
 	user.Email = inputUser.Email
 	user.Password = string(hashPass)
 	user.Phone = inputUser.Phone
+	user.Role = "user"
 	user.Age = inputUser.Age
 	user.Language = inputUser.Language
 	user.UserVerified.Email = false
 	user.UserVerifyToken.Email = emailToken
 	user.UserVerifyToken.Phone = phoneToken
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
 
 	// send email 
 	go func () {
