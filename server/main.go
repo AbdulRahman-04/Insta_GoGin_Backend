@@ -1,22 +1,16 @@
 package main
 
-import (
-	"github.com/AbdulRahman-04/Go_Backend_Project/utils"
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 
 func main(){
-	// databse import 
-	utils.DbConnect()
-	
 	router := gin.Default()
 
-	router.GET("/", func (c *gin.Context){
+	router.GET("/", func(c *gin.Context){
 		c.JSON(200, gin.H{
-			"msg" : "HELLO FROM GIN",
+			"msg" : "Hello in gin",
 		})
 	})
 
-	router.Run(":3050")
+	router.Run(":5060")
 }

@@ -30,24 +30,18 @@ type OAuthConfig struct {
 }
 
 var AppConfig = &Config{
-	Appname: "Go_Backend_Practice",
-	Port: 3050,
-	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/Go_Backend_Practice",
-    JWTKEY: "RAHMAN123",
-	URL: "http://localhost:3050",
+	Appname: "Go Backend Practice",
+	Port: 5060,
+	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/Go_PRACTICE_BACKEND",
+	JWTKEY: "RAHMAN123",
+	URL: "http://localhost:5060",
 	Email: EmailConfig{
-		User: "",
+		User: "abdulrahman.81869@gmail.com",
 		Pass: "",
 	},
 	Phone: PhoneConfig{
 		Sid: "",
 		Token: "",
 		Phone: "",
-	},
-	OAuth: OAuthConfig{
-		GoogleClientID: "",
-		GoogleSecretClientID: "",
-		GithubClientID: "",
-		GithubSecretClientID: "",
 	},
 }
