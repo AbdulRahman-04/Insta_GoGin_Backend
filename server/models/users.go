@@ -16,7 +16,7 @@ type User struct {
 	Age int `bson:"age,omitempty" json:"age" validate:"required,min= 10"`
 	Language string `bson:"language,omitempty" json:"language" validate:"required,oneof=Hindi English Urdu Kannada Arabic"`
 	UserVerified struct {
-		Email string `bson:"emailVerified" json:"emailVerified"`
+		Email bool `bson:"emailVerified" json:"emailVerified"`
 	} `bson:"userVerified" json:"userVerified"`
    UserVerifyToken struct {
 	Email string `bson:"emailToken" json:"emailToken"`
