@@ -19,8 +19,8 @@ type User struct {
 		Email bool `bson:"emailVerified" json:"emailVerified"`
 	} `bson:"userVerified" json:"userVerified"`
    UserVerifyToken struct {
-	Email string `bson:"emailToken" json:"emailToken"`
-	Phone string `bson:"phoneToken" json:"phoneToken"`
+	Email string `bson:"email" json:"email"`
+	Phone string `bson:"phone" json:"phone"`
    } `bson:"userVerifyToken" json:"userVerifyToken"`
    CreatedAt time.Time `bson:"created_at" json:"created_at"`
    UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
