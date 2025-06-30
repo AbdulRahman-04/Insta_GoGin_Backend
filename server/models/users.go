@@ -16,12 +16,12 @@ type User struct {
 	Language string `bson:"language,omitempty" json:"language" validate:"required,oneof=Hindi Urdu English"`
 	Age int `bson:"age,omitempty" json:"age" validate:"required,min= 10"`
 	UserVerified struct {
-		Email string `bson:"emailVerified" json:"emailVerified"`
+		Email bool `bson:"emailVerified" json:"emailVerified"`
 	} `bson:"userVerified" json:"userVerified"`
 	UserVerifyToken struct {
 		Email string `bson:"emailToken" json:"emailToken"`
 		Phone string `bson:"phoneToken" json:"phoneToken"` 
-	}
+	} `bson:"userVerifyToken" json:"userVerifyToken"`
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
 
