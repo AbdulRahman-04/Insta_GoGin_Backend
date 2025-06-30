@@ -1,22 +1,16 @@
 package main
 
-import (
-	"github.com/AbdulRahman-04/Go_Backend_Practice/utils"
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 
 func main(){
-	// db import 
-	utils.DbConnect()
-	
 	router := gin.Default()
 
-	router.GET("/", func(c *gin.Context){
+	router.GET("/", func (c *gin.Context)  {
 		c.JSON(200, gin.H{
-			"msg" : "Hello in gin",
+			"msg": "HELLO FROM GIN	",
 		})
 	})
 
-	router.Run(":5060")
+	router.Run(":6060")
 }
