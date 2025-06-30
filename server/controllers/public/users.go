@@ -277,3 +277,86 @@ func UserSignIn(c *gin.Context){
 			"msg": "logged in bro","token": token})
 		
 }
+
+// user change password 
+func ChangePass(c*gin.Context){
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// type struct 
+    type ChangePassword struct {
+        Email string `json:"email" form:"email"`
+		OldPassword string `json:"oldpassword" form:"oldpassword"`
+		NewPassword string `json:"newpassword" form:"newpassword"`
+	}
+
+	// create var and bind it into json
+	var inputUser ChangePassword
+
+	if err := c.ShouldBindJSON(&inputUser); err != nil {
+		c.JSON(400, gin.H{
+			"msg": "invalid request",
+		})
+		return
+	}
+
+	// validations 
+	if inputUser.Email == "" || inputUser.NewPassword == "" || inputUser.OldPassword == "" {
+		c.JSON(400, gin.H{
+			"msg": "fill all fields",
+		})
+		return
+	}
+
+	if !strings.Contains(inputUser.Email, "@"){
+		c.JSON(400, gin.H{
+			"msg": "invalid email",
+		})
+		return
+	}
+
+	if len(inputUser.NewPassword) < 6 {
+		c.JSON(400, gin.H{
+			"msg": "invalid new pass",
+		})
+		return
+	}
+
+	// find user by email 
+	var user models.User
+	err := userCollection.FindOne(ctx, bson.M{"email": inputUser.Email}).Decode(&user)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"msg": "invalid db error",
+		})
+		return
+	}
+
+	// check old pass 
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(inputUser.OldPassword))
+    if err != nil {
+		c.JSON(400, gin.H{
+			"msg": "invalid old password",
+		})
+		return
+	}
+
+	// hash nd update new pass 
+	hashPass, _ := bcrypt.GenerateFromPassword([]byte(inputUser.NewPassword), 10)
+	update := bson.M{"$set": bson.M{
+		"password": string(hashPass),
+		"updated_at": time.Now(),
+	}}
+
+	_, err = userCollection.UpdateByID(ctx, user.ID, update)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"msg": "change failed",
+		})
+		return
+	}
+
+	c.JSON(400, gin.H{
+			"msg": "password reset✅",
+		})
+}
