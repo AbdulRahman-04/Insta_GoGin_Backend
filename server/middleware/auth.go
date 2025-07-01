@@ -9,22 +9,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// jwt key lalo config se
-var myKey = []byte(config.AppConfig.JWTKEY)
+var myJwtKey = []byte(config.AppConfig.JWTKEY)
 
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// get the token in auth header
+func AuthMiddleware() gin.HandlerFunc{
+	return func(c *gin.Context){
+		// get token in authheader
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(400, gin.H{
-				"msg": "please provide a token",
+				"msg": "no token provided",
 			})
 			c.Abort()
 			return
 		}
 
-		// token ku split kro
+		// split krdo token ku 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(400, gin.H{
@@ -34,15 +33,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// ab ye token ku store krlo new var m
+		// token ku ab store krke verify kro 
 		myToken := parts[1]
 
-		// ab token ku parse krke verify kro
-		token, err := jwt.Parse(myToken, func(token *jwt.Token) (interface{}, error) {
-			return myKey, nil
+		token, err := jwt.Parse(myToken, func(token *jwt.Token)(interface{}, error){
+			return myJwtKey , nil
 		})
-
-		if err != nil || !token.Valid {
+		if err != nil {
 			c.JSON(400, gin.H{
 				"msg": "invalid token",
 			})
@@ -50,7 +47,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// ab jo h so token k andar ka data nikalo claims var m
+		// claims m poora data store krlo 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			c.JSON(400, gin.H{
@@ -60,7 +57,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// ab jo h userid/admin id extract krke mongodb id m convert kro
+		// user/admin id nikalo aur mongoid m convert kro 
 		userStrId, ok := claims["id"].(string)
 		if !ok {
 			c.JSON(400, gin.H{
@@ -73,13 +70,13 @@ func AuthMiddleware() gin.HandlerFunc {
 		userId, err := primitive.ObjectIDFromHex(userStrId)
 		if err != nil {
 			c.JSON(400, gin.H{
-				"msg": "invalid id format",
+				"msg": "couldn't parse id into mongo id",
 			})
 			c.Abort()
 			return
 		}
 
-		// role nikalo claims m se
+		// role nikalo 
 		role, ok := claims["role"].(string)
 		if !ok {
 			c.JSON(400, gin.H{
@@ -87,9 +84,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			})
 			c.Abort()
 			return
-		}
+		} 
 
-		// set krdo context m
+		// context m set krdo role nd id
 		c.Set("userId", userId)
 		c.Set("role", role)
 
