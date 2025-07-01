@@ -124,6 +124,8 @@ func AdminSignUp(c *gin.Context){
 	admin.AdminVerified.Email = false
 	admin.AdminVerfiyToken.Email = emailToken
 	admin.AdminVerfiyToken.Phone = phoneToken
+	admin.CreatedAt = time.Now()
+	admin.UpdatedAt = time.Now()
 
 	// send email link 
 	go func(){
@@ -432,7 +434,7 @@ func ForgotPass(c *gin.Context){
 	}
  
 	update := bson.M{"$set": bson.M{"password": string(hashTempPass), "updated_at": time.Now()}}
-	_, err = userCollection.UpdateByID(ctx, admin.ID, update)
+	_, err = adminCollection.UpdateByID(ctx, admin.ID, update)
 	if err != nil {
 		c.JSON(400, gin.H{"msg": "Password update failed!"})
 		return
