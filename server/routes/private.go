@@ -25,7 +25,7 @@ func RegisterPrivateRoutes(router *gin.Engine) {
 	privateGroup.GET("/getallstories", middleware.OnlyUser(), private.GetAllStories)
 	privateGroup.GET("/getonestories/:id", middleware.OnlyUser(), private.GetOneStory)
 	privateGroup.PUT("/editonestories/:id", middleware.OnlyUser(), private.EditStory)
-	privateGroup.DELETE("/deleteonestory/:id", middleware.OnlyUser(), private.DeleteOneStory)
+	privateGroup.DELETE("/deleteonestories/:id", middleware.OnlyUser(), private.DeleteOneStory)
 	privateGroup.DELETE("/deleteallstories", middleware.OnlyUser(), private.DeleteAllStories)
 
 	// ✅ Admin-only user routes (RBAC check)

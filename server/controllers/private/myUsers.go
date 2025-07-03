@@ -16,7 +16,7 @@ import (
 var userCollection *mongo.Collection
 
 func UserCollect() {
-	userCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("user")
+	userCollection = utils.MongoClient.Database("Insta_Backend").Collection("user")
 }
 
 

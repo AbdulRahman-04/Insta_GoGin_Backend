@@ -32,7 +32,7 @@ type OAuthConfig struct {
 var AppConfig = &Config{
 	AppName: "GO BACKEND",
 	Port: 6060,
-	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/GO_BACKEND_practice",
+	DBURI: "mongodb+srv://abdrahman:abdrahman@rahmann18.hy9zl.mongodb.net/Insta_Backend",
 	JWTKEY: "RAHMAN123",
 	URL: "http://localhost:6060",
 	Email: EmailConfig{

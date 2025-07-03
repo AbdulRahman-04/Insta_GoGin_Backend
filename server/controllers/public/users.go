@@ -22,7 +22,7 @@ import (
 var userCollection *mongo.Collection
 
 func UserCollect() {
-	userCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("user")
+	userCollection = utils.MongoClient.Database("Insta_Backend").Collection("user")
 }
 
 var JwtKey = []byte(config.AppConfig.JWTKEY)
@@ -206,7 +206,7 @@ func UserEmailVerify(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"msg": "email verified",
+		"msg": "email verified✅",
 	})
 
 }
@@ -275,7 +275,7 @@ func UserSignIn(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"msg": "logged in", "token": token})
+		"msg": "logged in successfully✅", "token": token})
 
 }
 
@@ -354,7 +354,7 @@ func ChangeUserPass(c *gin.Context){
 	} 
 
 	c.JSON(200, gin.H{
-			"msg": "password changes✅",
+			"msg": "password changed✅",
 		})
 		
 }

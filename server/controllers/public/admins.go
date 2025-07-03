@@ -26,7 +26,7 @@ var jwtKey = []byte(config.AppConfig.JWTKEY)
 var url = config.AppConfig.URL
 
 func AdminCollect() {
-	adminCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("admin")
+	adminCollection = utils.MongoClient.Database("Insta_Backend").Collection("admin")
 }
 
 func adminTokenGenerate(length int) string {
@@ -149,7 +149,7 @@ func AdminSignUp(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"msg": "Admin registered, please verify ur email nd login",
+		"msg": "Admin registered✅, please verify ur email nd login",
 	})
 
 }
@@ -202,7 +202,7 @@ func EmailAdminVerify(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"msg": "admin email verified",
+		"msg": "admin email verified✅",
 	})
 }
 
@@ -380,7 +380,7 @@ func ChangeAdminPass(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"msg": "Password changes successfully!✅",
+		"msg": "Password changed successfully!✅",
 	})
 
 }

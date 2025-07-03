@@ -15,7 +15,7 @@ import (
 var storiesCollection *mongo.Collection
 
 func StoryCollect() {
-	storiesCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("stories")
+	storiesCollection = utils.MongoClient.Database("Insta_Backend").Collection("stories")
 }
 
 // create story api 
@@ -56,7 +56,7 @@ func CreateStory(c*gin.Context){
 	}
 
 	c.JSON(200, gin.H{
-			"msg": "story created"})
+			"msg": "story created✅🔥"})
 }
 
 // func getall userspecific story 
@@ -86,46 +86,16 @@ func GetAllStories(c*gin.Context){
 	}
 
 	c.JSON(200, gin.H{
-			"msg": "all stories are here","stories": stories})
+			"msg": "all stories are here👀","stories": stories})
 		
 }
 
-// normal get all stories 
-func GetAllUserStories(c*gin.Context){
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	cursor , err := storiesCollection.Find(ctx, bson.M{})
-	if err != nil {
-		c.JSON(400, gin.H{
-			"msg": "db error",
-		})
-		return
-	}
-
-	defer cursor.Close(ctx)
-
-	var AllStories []models.Stories
-	err = cursor.All(ctx, &AllStories)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"msg": "db error decoding",
-		})
-		return
-	}
-
-	c.JSON(200, gin.H{
-			"msg": "all stories are here", "stories": AllStories})
-
-}
-
 // get one user specific api 
-func GetOneStory(c*gin.Context){
+func GetOneStory(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	paramId := c.Param("id")
-
 	objId, err := primitive.ObjectIDFromHex(paramId)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -136,7 +106,6 @@ func GetOneStory(c*gin.Context){
 
 	var oneStory models.Stories
 	err = storiesCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&oneStory)
- 
 	if err != nil {
 		c.JSON(400, gin.H{
 			"msg": "no user story found",
@@ -144,38 +113,17 @@ func GetOneStory(c*gin.Context){
 		return
 	}
 
+	// ✅ Get userId from context (JWT claims)
+	userId := c.MustGet("userId").(primitive.ObjectID)
+
+	// ✅ Final response with userId
 	c.JSON(200, gin.H{
-			"msg": "user one story is here","stories": oneStory})
+		"msg":     "user one story is here👀",
+		"stories": oneStory,
+		"userId":  userId.Hex(),
+	})
 }
 
-// normal get one api 
-func GetOneStoryUser(c*gin.Context){
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	paramId := c.Param("id")
-	objId, err := primitive.ObjectIDFromHex(paramId)
-
-	if err != nil {
-		c.JSON(400, gin.H{
-			"msg": "invalid id",
-		})
-		return
-	}
-    
-	var oneStory models.Stories
-	err = storiesCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&oneStory)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"msg": "db error, no such story found",
-		})
-		return
-	}
-
-	c.JSON(200, gin.H{
-			"msg": "story is here", "story": oneStory})
-		
-}
 
 // edit story api 
 func EditStory(c *gin.Context) {
