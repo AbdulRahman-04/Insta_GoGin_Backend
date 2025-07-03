@@ -7,6 +7,7 @@ import (
 	"github.com/AbdulRahman-04/Go_Backend_Practice/models"
 	"github.com/AbdulRahman-04/Go_Backend_Practice/utils"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -86,7 +87,7 @@ func GetAllStories(c*gin.Context){
 
 	c.JSON(200, gin.H{
 			"msg": "all stories are here","stories": stories})
-		return
+		
 }
 
 // normal get all stories 
@@ -173,5 +174,107 @@ func GetOneStoryUser(c*gin.Context){
 
 	c.JSON(200, gin.H{
 			"msg": "story is here", "story": oneStory})
+		
+}
+
+// edit story api 
+func EditStory(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 🔐 Get user ID from JWT context
+	userId := c.MustGet("userId").(primitive.ObjectID)
+
+	// 🆔 Get story ID from URL param
+	paramId := c.Param("id")
+	storyId, err := primitive.ObjectIDFromHex(paramId)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": "Invalid story ID"})
 		return
+	}
+
+	// 📥 Get form fields
+	caption := c.PostForm("caption")
+	text := c.PostForm("text")
+	song := c.PostForm("song")
+
+	// 📸 Try image upload (optional)
+	imageUrl, err := utils.UploadFile(c)
+	if err != nil {
+		imageUrl = ""
+	}
+
+	// 🔍 Check if story exists and belongs to user
+	var existingStory models.Stories
+	err = storiesCollection.FindOne(ctx, bson.M{
+		"_id":     storyId,
+		"user_id": userId,
+	}).Decode(&existingStory)
+	if err != nil {
+		c.JSON(404, gin.H{"msg": "Story not found or unauthorized"})
+		return
+	}
+
+	// 🛠️ Build update object (with $set)
+	update := bson.M{
+		"$set": bson.M{
+			"caption":    caption,
+			"text":       text,
+			"song":       song,
+			"updated_at": time.Now(),
+		},
+	}
+
+	if imageUrl != "" {
+		update["$set"].(bson.M)["imageUrl"] = imageUrl
+	}
+
+	// 💾 Update into MongoDB
+	_, err = storiesCollection.UpdateOne(ctx, bson.M{"_id": storyId}, update)
+	if err != nil {
+		c.JSON(500, gin.H{"msg": "DB error while updating story"})
+		return
+	}
+
+	// ✅ Success
+	c.JSON(200, gin.H{"msg": "Story updated successfully ✅"})
+}
+
+// delete one story 
+func DeleteOneStory(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userId := c.MustGet("userId").(primitive.ObjectID)
+	paramId := c.Param("id")
+
+	storyId, err := primitive.ObjectIDFromHex(paramId)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": "Invalid story ID"})
+		return
+	}
+
+	res, err := storiesCollection.DeleteOne(ctx, bson.M{"_id": storyId, "user_id": userId})
+	if err != nil || res.DeletedCount == 0 {
+		c.JSON(404, gin.H{"msg": "Story not found or unauthorized"})
+		return
+	}
+
+	c.JSON(200, gin.H{"msg": "Story deleted successfully ✅"})
+}
+
+// delete all stories api
+func DeleteAllStories(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userId := c.MustGet("userId").(primitive.ObjectID)
+
+	res, err := storiesCollection.DeleteMany(ctx, bson.M{"user_id": userId})
+	if err != nil || res.DeletedCount == 0 {
+		c.JSON(400, gin.H{"msg": "No stories found or DB error"})
+		return
+	}
+
+	c.JSON(200, gin.H{"msg": "All your stories deleted ✅"})
 }

@@ -167,3 +167,115 @@ func GetOnePostUser(c*gin.Context){
 		return
 	}
 }
+
+
+// EDIT USER POST API
+
+func EditPost(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 🔐 Get user ID from context (JWT)
+	userId := c.MustGet("userId").(primitive.ObjectID)
+
+	// 🆔 Get Post ID from URL param
+	paramId := c.Param("id")
+	postId, err := primitive.ObjectIDFromHex(paramId)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"msg": "Invalid post ID format",
+		})
+		return
+	}
+
+	// 📥 Get form data
+	caption := c.PostForm("caption")
+	tags := c.PostFormArray("tags")
+
+	// 📸 Try to upload image (optional)
+	imageUrl, err := utils.UploadFile(c)
+	if err != nil {
+		imageUrl = "" // optional image
+	}
+
+	// 🔍 Check if post exists & belongs to current user
+	var existingPost models.Post
+	err = postCollection.FindOne(ctx, bson.M{
+		"_id":     postId,
+		"user_id": userId,
+	}).Decode(&existingPost)
+	if err != nil {
+		c.JSON(404, gin.H{
+			"msg": "Post not found or unauthorized",
+		})
+		return
+	}
+
+	// 🔧 Prepare update object with `$set` (Method 1 style)
+	update := bson.M{
+		"$set": bson.M{
+			"caption":    caption,
+			"tags":       tags,
+			"updated_at": time.Now(),
+		},
+	}
+
+	if imageUrl != "" {
+		update["$set"].(bson.M)["image_url"] = imageUrl
+	}
+
+	// 💾 Update in MongoDB
+	_, err = postCollection.UpdateOne(ctx, bson.M{"_id": postId}, update)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"msg": "DB error while updating post",
+		})
+		return
+	}
+
+	// ✅ Success
+	c.JSON(200, gin.H{
+		"msg": "Post updated successfully ✅",
+	})
+}
+
+// delete one post 
+func DeleteOnePost(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userId := c.MustGet("userId").(primitive.ObjectID)
+	paramId := c.Param("id")
+
+	postId, err := primitive.ObjectIDFromHex(paramId)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": "Invalid post ID"})
+		return
+	}
+
+	// 🔐 Ensure post belongs to this user
+	res, err := postCollection.DeleteOne(ctx, bson.M{"_id": postId, "user_id": userId})
+	if err != nil || res.DeletedCount == 0 {
+		c.JSON(404, gin.H{"msg": "Post not found or unauthorized"})
+		return
+	}
+
+	c.JSON(200, gin.H{"msg": "Post deleted successfully ✅"})
+}
+
+// delete all posts 
+func DeleteAllPosts(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userId := c.MustGet("userId").(primitive.ObjectID)
+
+	res, err := postCollection.DeleteMany(ctx, bson.M{"user_id": userId})
+	if err != nil || res.DeletedCount == 0 {
+		c.JSON(400, gin.H{"msg": "No posts found or DB error"})
+		return
+	}
+
+	c.JSON(200, gin.H{"msg": "All your posts deleted ✅"})
+}
+
