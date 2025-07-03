@@ -23,9 +23,9 @@ var adminCollection *mongo.Collection
 
 var jwtKey = []byte(config.AppConfig.JWTKEY)
 
-var url= config.AppConfig.URL
+var url = config.AppConfig.URL
 
-func adminCollect() {
+func AdminCollect() {
 	adminCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("admin")
 }
 
@@ -35,23 +35,23 @@ func adminTokenGenerate(length int) string {
 	return hex.EncodeToString(d)
 }
 
-// admin signup api 
-func AdminSignUp(c *gin.Context){
+// admin signup api
+func AdminSignUp(c *gin.Context) {
 	// create ctx
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// type struct 
+	// type struct
 	type AdminSignUp struct {
-		AdminName string   `json:"adminname" form:"adminname"`
-		Email string       `json:"email" form:"email"` 
-		Password string    `json:"password" form:"password"` 
-		Age int            `json:"age" form:"age"`
-		Phone string       `json:"phone" form:"phone"`
-		Language string    `json:"language" form:"language"`
+		AdminName string `json:"adminname" form:"adminname"`
+		Email     string `json:"email" form:"email"`
+		Password  string `json:"password" form:"password"`
+		Age       int    `json:"age" form:"age"`
+		Phone     string `json:"phone" form:"phone"`
+		Language  string `json:"language" form:"language"`
 	}
 
-	// create var nd bint it 
+	// create var nd bint it
 	var inputAdmin AdminSignUp
 
 	if err := c.ShouldBindJSON(&inputAdmin); err != nil {
@@ -61,7 +61,7 @@ func AdminSignUp(c *gin.Context){
 		return
 	}
 
-	// validations 
+	// validations
 	if inputAdmin.AdminName == "" || inputAdmin.Email == "" || inputAdmin.Password == "" || inputAdmin.Age == 0 || inputAdmin.Phone == "" || inputAdmin.Language == "" {
 		c.JSON(400, gin.H{
 			"msg": "fill all fields",
@@ -69,7 +69,7 @@ func AdminSignUp(c *gin.Context){
 		return
 	}
 
-	if !strings.Contains(inputAdmin.Email, "@"){
+	if !strings.Contains(inputAdmin.Email, "@") {
 		c.JSON(400, gin.H{
 			"msg": "invalid email",
 		})
@@ -90,7 +90,7 @@ func AdminSignUp(c *gin.Context){
 		return
 	}
 
-	// duplicate check 
+	// duplicate check
 	count, err := adminCollection.CountDocuments(ctx, bson.M{"email": inputAdmin.Email})
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -106,13 +106,13 @@ func AdminSignUp(c *gin.Context){
 		return
 	}
 
-	// hash the pass 
+	// hash the pass
 	hashPass, _ := bcrypt.GenerateFromPassword([]byte(inputAdmin.Password), 10)
 	emailToken := adminTokenGenerate(8)
 	phoneToken := adminTokenGenerate(8)
 
-	// create admin model var and push values inside it 
-    var admin models.Admin
+	// create admin model var and push values inside it
+	var admin models.Admin
 
 	admin.AdminName = inputAdmin.AdminName
 	admin.Email = inputAdmin.Email
@@ -127,19 +127,19 @@ func AdminSignUp(c *gin.Context){
 	admin.CreatedAt = time.Now()
 	admin.UpdatedAt = time.Now()
 
-	// send email link 
-	go func(){
-  
+	// send email link
+	go func() {
+
 		emailData := utils.EmailData{
-			From: "team insta",
-			To: inputAdmin.Email,
+			From:    "team insta",
+			To:      inputAdmin.Email,
 			Subject: "email verify",
-			Html: fmt.Sprintf(`<a hrf="%s/api/public/admin/emailverify/%s"></a>`, url, emailToken),
+			Html:    fmt.Sprintf(`<a href="%s/api/public/admin/emailverify/%s">Click here to verify your email</a>`, URL, emailToken),
 		}
-     _ = utils.SendEmail(emailData)
+		_ = utils.SendEmail(emailData)
 	}()
 
-	// insert into db 
+	// insert into db
 	_, err = adminCollection.InsertOne(ctx, admin)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -154,8 +154,8 @@ func AdminSignUp(c *gin.Context){
 
 }
 
-// email verify api 
-func EmailAdminVerify(c*gin.Context){
+// email verify api
+func EmailAdminVerify(c *gin.Context) {
 	// ctx
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -163,17 +163,20 @@ func EmailAdminVerify(c*gin.Context){
 	// take token from param
 	token := c.Param("token")
 
-	// compare the param token with each document in db 
+	// compare the param token with each document in db
 	var admin models.Admin
-	err := adminCollection.FindOne(ctx, bson.M{"adminVerifyToken.emailToken": token}).Decode(&admin)
+	err := adminCollection.FindOne(ctx, bson.M{
+		"adminVerifyToken.emailToken": token,
+	}).Decode(&admin)
+
 	if err != nil {
-      c.JSON(400, gin.H{
+		c.JSON(400, gin.H{
 			"msg": "invalid token",
 		})
 		return
 	}
 
-	// check if the link hasnt been clicked more than once 
+	// check if the link hasnt been clicked more than once
 	if admin.AdminVerified.Email {
 		c.JSON(400, gin.H{
 			"msg": "admin email already verified",
@@ -181,38 +184,38 @@ func EmailAdminVerify(c*gin.Context){
 		return
 	}
 
-	//  update the db 
+	//  update the db
 	update := bson.M{
-		"$set" : bson.M{
+		"$set": bson.M{
 			"adminVerified.emailVerified": true,
 			"adminVerifyToken.emailToken": nil,
-			"updated_at": time.Now(),
+			"updated_at":                  time.Now(),
 		}}
 
-	// update the changes into db 
-	_, err = adminCollection.UpdateByID(ctx, admin.ID, update) 
+	// update the changes into db
+	_, err = adminCollection.UpdateByID(ctx, admin.ID, update)
 	if err != nil {
-      c.JSON(400, gin.H{
+		c.JSON(400, gin.H{
 			"msg": "couldn't update email",
 		})
 		return
 	}
 
 	c.JSON(200, gin.H{
-			"msg": "admin email verified",
-		})
+		"msg": "admin email verified",
+	})
 }
 
 // signin api admin
-func AdminSignIn(c*gin.Context) {
-	// ctx 
+func AdminSignIn(c *gin.Context) {
+	// ctx
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// type struct 
+	// type struct
 	type AdminSignIn struct {
-		Email string      `json:"email" form:"email"`
-		Password string   `json:"password" form:"password"`
+		Email    string `json:"email" form:"email"`
+		Password string `json:"password" form:"password"`
 	}
 
 	// create a var and bind into it
@@ -225,7 +228,7 @@ func AdminSignIn(c*gin.Context) {
 		return
 	}
 
-	// validations 
+	// validations
 	if inputAdmin.Email == "" || inputAdmin.Password == "" {
 		c.JSON(400, gin.H{
 			"msg": "fill all fields",
@@ -233,7 +236,7 @@ func AdminSignIn(c*gin.Context) {
 		return
 	}
 
-	if !strings.Contains(inputAdmin.Email, "@"){
+	if !strings.Contains(inputAdmin.Email, "@") {
 		c.JSON(400, gin.H{
 			"msg": "invalid email",
 		})
@@ -247,7 +250,7 @@ func AdminSignIn(c*gin.Context) {
 		return
 	}
 
-	// find admin in db using admin model 
+	// find admin in db using admin model
 	var admin models.Admin
 
 	err := adminCollection.FindOne(ctx, bson.M{"email": inputAdmin.Email}).Decode(&admin)
@@ -258,8 +261,8 @@ func AdminSignIn(c*gin.Context) {
 		return
 	}
 
-	// compare pass 
-	if err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(inputAdmin.Password)); err!= nil {
+	// compare pass
+	if err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(inputAdmin.Password)); err != nil {
 		c.JSON(400, gin.H{
 			"msg": "invalid pass",
 		})
@@ -267,38 +270,38 @@ func AdminSignIn(c*gin.Context) {
 	}
 
 	// token generation
-	token , err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": admin.ID,
-		"role": admin.Role,
-		"email" : admin.Email,
-		"exp": time.Now().Add(5*time.Hour).Unix(),
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":    admin.ID,
+		"role":  admin.Role,
+		"email": admin.Email,
+		"exp":   time.Now().Add(5 * time.Hour).Unix(),
 	}).SignedString(jwtKey)
 
 	if err != nil {
-		 c.JSON(400, gin.H{
+		c.JSON(400, gin.H{
 			"msg": "couldn't generate token",
-		 })
-		 return
+		})
+		return
 	}
 
 	c.JSON(200, gin.H{
 		"msg": "user logged in successfully!✅", "token": token})
 }
 
-// change password 
-func ChangeAdminPass(c *gin.Context){
+// change password
+func ChangeAdminPass(c *gin.Context) {
 	// ctx
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// type changepass struct 
+	// type changepass struct
 	type ChangeAdminPass struct {
-		Email string        `json:"email" form:"email"`
-		OldPassword string  `json:"oldpassword" form:"oldpassword"` 
-		NewPassword string  `json:"newpassword" form:"newpassword"` 
+		Email       string `json:"email" form:"email"`
+		OldPassword string `json:"oldpassword" form:"oldpassword"`
+		NewPassword string `json:"newpassword" form:"newpassword"`
 	}
 
-	// create a var and bind into it 
+	// create a var and bind into it
 	var inputAdmin ChangeAdminPass
 
 	if err := c.ShouldBindJSON(&inputAdmin); err != nil {
@@ -308,7 +311,7 @@ func ChangeAdminPass(c *gin.Context){
 		return
 	}
 
-	// validations 
+	// validations
 	if inputAdmin.Email == "" || inputAdmin.OldPassword == "" || inputAdmin.NewPassword == "" {
 		c.JSON(400, gin.H{
 			"msg": "invalid input, pls fill all",
@@ -316,7 +319,7 @@ func ChangeAdminPass(c *gin.Context){
 		return
 	}
 
-	if !strings.Contains(inputAdmin.Email, "@"){
+	if !strings.Contains(inputAdmin.Email, "@") {
 		c.JSON(400, gin.H{
 			"msg": "invalid email",
 		})
@@ -330,7 +333,7 @@ func ChangeAdminPass(c *gin.Context){
 		return
 	}
 
-	// find the email in db 
+	// find the email in db
 	var admin models.Admin
 
 	err := adminCollection.FindOne(ctx, bson.M{"email": inputAdmin.Email}).Decode(&admin)
@@ -341,7 +344,7 @@ func ChangeAdminPass(c *gin.Context){
 		return
 	}
 
-	// compare old pass 
+	// compare old pass
 	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(inputAdmin.OldPassword))
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -350,9 +353,9 @@ func ChangeAdminPass(c *gin.Context){
 		return
 	}
 
-	// hash the new pass 
-	hashNewPass , err  := bcrypt.GenerateFromPassword([]byte(inputAdmin.NewPassword), 10)
- 
+	// hash the new pass
+	hashNewPass, err := bcrypt.GenerateFromPassword([]byte(inputAdmin.NewPassword), 10)
+
 	if err != nil {
 		c.JSON(400, gin.H{
 			"msg": "couldnt hash pass",
@@ -360,15 +363,15 @@ func ChangeAdminPass(c *gin.Context){
 		return
 	}
 
-	// update into db 
+	// update into db
 	update := bson.M{
 		"$set": bson.M{
-			"password": string(hashNewPass),
+			"password":   string(hashNewPass),
 			"updated_at": time.Now(),
 		}}
 
-	// add the changes into db 
-	_, err = adminCollection.UpdateByID(ctx, admin.ID ,update) 
+	// add the changes into db
+	_, err = adminCollection.UpdateByID(ctx, admin.ID, update)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"msg": "db error",
@@ -377,27 +380,26 @@ func ChangeAdminPass(c *gin.Context){
 	}
 
 	c.JSON(200, gin.H{
-			"msg": "Password changes successfully!✅",
-		})
-		
+		"msg": "Password changes successfully!✅",
+	})
 
 }
 
-// forgot password api 
-func ForgotPass(c *gin.Context){
+// forgot password api
+func ForgotPass(c *gin.Context) {
 	// ctx
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// type struct 
+	// type struct
 	type ForgotPass struct {
 		Email string `json:"email" form:"email"`
 	}
 
-	// create var and bind it 
+	// create var and bind it
 	var inputAdmin ForgotPass
 
-	if err := c.ShouldBindJSON(&inputAdmin);  err != nil {
+	if err := c.ShouldBindJSON(&inputAdmin); err != nil {
 		c.JSON(400, gin.H{
 			"msg": "invalid request",
 		})
@@ -423,23 +425,22 @@ func ForgotPass(c *gin.Context){
 		return
 	}
 
-	// generate a new pass 
+	// generate a new pass
 	tempPass := adminTokenGenerate(8)
-	hashTempPass , err := bcrypt.GenerateFromPassword([]byte(tempPass), 10)
+	hashTempPass, err := bcrypt.GenerateFromPassword([]byte(tempPass), 10)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"msg": "couldnt hash pass",
 		})
 		return
 	}
- 
+
 	update := bson.M{"$set": bson.M{"password": string(hashTempPass), "updated_at": time.Now()}}
 	_, err = adminCollection.UpdateByID(ctx, admin.ID, update)
 	if err != nil {
 		c.JSON(400, gin.H{"msg": "Password update failed!"})
 		return
 	}
-
 
 	// Send temp password to email
 	emailData := utils.EmailData{

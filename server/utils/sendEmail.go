@@ -27,10 +27,10 @@ func SendEmail(data EmailData) error {
 	s.SetHeader("To", data.To)
 	s.SetHeader("Subject", data.Subject)
 	s.SetBody("Text/plain", data.Text)
-	s.AddAlternative("Html/plain", data.Html)
+	s.AddAlternative("text/html", data.Html)
 
 	// create a transporter smtp
-	t := gomail.NewDialer("smt.gmail.com", 465, user, pass)
+	t := gomail.NewDialer("smtp.gmail.com", 465, user, pass)
 
 	// send mail 
 	if err := t.DialAndSend(s); err != nil {

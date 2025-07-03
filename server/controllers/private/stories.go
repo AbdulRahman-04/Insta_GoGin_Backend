@@ -14,8 +14,8 @@ import (
 
 var storiesCollection *mongo.Collection
 
-func storyCollect() {
-	storiesCollection = utils.MongoClient.Database("").Collection("stories")
+func StoryCollect() {
+	storiesCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("stories")
 }
 
 // create story api 
@@ -135,7 +135,7 @@ func GetOneStory(c*gin.Context){
 	}
 
 	var oneStory models.Stories
-	err = storiesCollection.FindOne(ctx, bson.M{"user_id": objId}).Decode(&oneStory)
+	err = storiesCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&oneStory)
  
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -145,7 +145,7 @@ func GetOneStory(c*gin.Context){
 	}
 
 	c.JSON(200, gin.H{
-			"msg": "user stories are here","stories": oneStory})
+			"msg": "user one story is here","stories": oneStory})
 }
 
 // normal get one api 

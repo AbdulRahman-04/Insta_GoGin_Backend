@@ -28,6 +28,7 @@ func DbConnect() error {
 		fmt.Println(err)
 	}
 
+	MongoClient = client
 	fmt.Println("MONGO DB CONNECTED SUCCESSFULLY!✅")
 	return nil
 }

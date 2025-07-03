@@ -15,7 +15,7 @@ import (
 var postCollection *mongo.Collection
 
 func PostCollect(){
-	postCollection = utils.MongoClient.Database("").Collection("post")
+	postCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("post")
 }
 
 func CreatePost(c*gin.Context){

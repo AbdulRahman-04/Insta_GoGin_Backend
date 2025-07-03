@@ -21,6 +21,10 @@ import (
 
 var userCollection *mongo.Collection
 
+func UserCollect() {
+	userCollection = utils.MongoClient.Database("GO_BACKEND_practice").Collection("user")
+}
+
 var JwtKey = []byte(config.AppConfig.JWTKEY)
 var URL = config.AppConfig.URL
 
@@ -136,7 +140,7 @@ func UserSignUp(c *gin.Context) {
 			From:    "team insta",
 			To:      inputUser.Email,
 			Subject: "email verify",
-			Html:    fmt.Sprintf(`<a href="%s/api/public/user/emailverify/%s"></a>`, URL, emailToken),
+		    Html: fmt.Sprintf(`<a href="%s/api/public/user/emailverify/%s">Click here to verify your email</a>`, URL, emailToken),	
 		}
 
 		_ = utils.SendEmail(emailData)

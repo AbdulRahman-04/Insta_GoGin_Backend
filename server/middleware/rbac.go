@@ -1,6 +1,9 @@
 package middleware
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+    "fmt"
+  )
 
 
 func OnlyAdmin() gin.HandlerFunc{
@@ -27,6 +30,8 @@ func OnlyUser() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		fmt.Println("Middleware hit")
+
 		c.Next()
 	}
 }

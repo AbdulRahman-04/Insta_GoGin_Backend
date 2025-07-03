@@ -37,7 +37,7 @@ var AppConfig = &Config{
 	URL: "http://localhost:6060",
 	Email: EmailConfig{
 		User: "abdulrahman.81869@gmail.com",
-		Pass: "",
+		Pass: "wtvy bfpp lgaw xzqh",
 	},
 	Phone: PhoneConfig{
 		Sid: "",
