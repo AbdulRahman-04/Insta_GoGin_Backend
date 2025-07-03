@@ -141,3 +141,29 @@ func GetOnePost(c*gin.Context){
 			"msg": "one post of user is here", "post": onePost})
 		
 }
+
+
+// get one public api 
+func GetOnePostUser(c*gin.Context){
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	paramId := c.Param("id")
+
+	mongoId, err := primitive.ObjectIDFromHex(paramId)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"msg": "invalid id",
+		})
+		return
+	}
+
+	var onePost models.Post
+	err = postCollection.FindOne(ctx, bson.M{"_id": mongoId}).Decode(&onePost)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"msg": "invalid id, not found in db",
+		})
+		return
+	}
+}
